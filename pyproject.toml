@@ -6,6 +6,9 @@ authors = ["Pau <plabartabajo@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+pandas = "^1.5.2"
+jupyter = "^1.0.0"
+pyarrow = "^10.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
