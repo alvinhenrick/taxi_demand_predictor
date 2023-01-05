@@ -1,12 +1,11 @@
 name: hourly-taxi-demand-feature-pipeline
 
 on:
-  # workflow_dispatch:
   schedule:
    - cron: '0 * * * *'
 
 jobs:
-  test_schedule:
+  feature_pipeline:
 
       runs-on: ubuntu-latest
 

@@ -16,5 +16,5 @@ FEATURE_GROUP_NAME = 'time_series_hourly_feature_group'
 FEATURE_GROUP_VERSION = 1
 FEATURE_VIEW_NAME = 'time_series_hourly_feature_view'
 FEATURE_VIEW_VERSION = 1
-MODEL_NAME = 'next_hour_demand_predictor'
+MODEL_NAME = 'taxi_demand_predictor_next_hour'
 MODEL_VERSION = 1
