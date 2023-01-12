@@ -1,32 +1,25 @@
 from datetime import datetime, timedelta
-from pdb import set_trace as stop
-import os
 
-import requests
-import geopandas as gpd
 import hopsworks
+from hsfs.feature_store import FeatureStore
 import pandas as pd
 import numpy as np
-# from dotenv import load_dotenv
 
 import src.config as config
 
-# load key-value pairs from .env file as environment variables
-# load_dotenv()
 
-# HOPSWORKS_PROJECT_NAME = 'paulescu'
-# # FEATURE_GROUP_NAME = 'taxi_demand_time_series_hourly_fg'
-# # FEATURE_GROUP_VERSION = 11
-# FEATURE_VIEW_NAME = 'taxi_demand_time_series_hourly_fv'
-# FEATURE_VIEW_VERSION = 11
-# MODEL_NAME = 'lightgbm_regressor_taxi_demand_next_hour'
-# MODEL_VERSION = 5
+def get_hopsworks_project() -> hopsworks.project.Project:
 
-project = hopsworks.login(
-    project=config.HOPSWORKS_PROJECT_NAME,
-    api_key_value=config.HOPSWORKS_API_KEY
-)
-feature_store = project.get_feature_store()
+    return hopsworks.login(
+        project=config.HOPSWORKS_PROJECT_NAME,
+        api_key_value=config.HOPSWORKS_API_KEY
+    )
+
+def get_feature_store() -> FeatureStore:
+    
+    project = get_hopsworks_project()
+    return project.get_feature_store()
+
 
 def get_model_predictions(model, features: pd.DataFrame) -> pd.DataFrame:
     """"""
@@ -44,7 +37,9 @@ def load_batch_of_features_from_store(
     current_date: datetime,    
 ) -> pd.DataFrame:
 
-    n_features = 24*7*4
+    feature_store = get_feature_store()
+
+    n_features = config.N_FEATURES
 
     # read time-series data from the feature store
     fetch_data_to = current_date - timedelta(hours=1)
@@ -81,8 +76,6 @@ def load_batch_of_features_from_store(
     )
     features['pickup_hour'] = current_date
     features['pickup_location_id'] = location_ids
-    
-    # print(f'{features=}')
 
     return features
     
@@ -92,6 +85,7 @@ def load_model_from_registry():
     import joblib
     from pathlib import Path
 
+    project = get_hopsworks_project()
     model_registry = project.get_model_registry()
 
     model = model_registry.get_model(
