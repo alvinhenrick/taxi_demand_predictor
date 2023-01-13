@@ -57,7 +57,8 @@ def load_batch_of_features_from_store(
 
     # validate we are not missing data in the feature store
     location_ids = ts_data['pickup_location_id'].unique()
-    assert len(ts_data) == n_features*len(location_ids), "Time-series data is not complete"
+    assert len(ts_data) == n_features*len(location_ids), \
+        "Time-series data is not complete. Make sure your feature pipeline is up and runnning."
     
     # sort data by location and time
     ts_data.sort_values(by=['pickup_location_id', 'pickup_hour'], inplace=True)
