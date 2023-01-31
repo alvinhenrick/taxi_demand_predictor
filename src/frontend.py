@@ -24,15 +24,39 @@ st.set_page_config(layout="wide")
 # current_date = datetime.strptime('2023-01-05 12:00:00', '%Y-%m-%d %H:%M:%S')
 current_date = pd.to_datetime(datetime.utcnow()).floor('H')
 st.title(f'Taxi demand prediction 🚕')
-st.header(f'{current_date}')
+st.header(f'{current_date} UTC')
 
 progress_bar = st.sidebar.header('⚙️ Working Progress')
 progress_bar = st.sidebar.progress(0)
 N_STEPS = 7
 
+@st.experimental_memo
+def _load_batch_of_features_from_store(current_date) -> pd.DataFrame:
+    """A little bit of caching"""
+    return load_batch_of_features_from_store(current_date)
+
+# check if the most recent data is in the feature store
+def get_current_or_previous_date(current_date) -> datetime:
+    """
+    Check the latest datetime for which we have features in the feature store.
+    If data for the current hour is not available, we return the previous hour.
+    """
+    try:
+        _ = _load_batch_of_features_from_store(current_date)
+        return current_date
+    except:
+        from datetime import timedelta
+
+        st.title(f'Taxi demand prediction 🚕')
+        st.header('The most recent data is not yet available')
+        st.header(f'{current_date} UTC')
+        return current_date - timedelta(hours=1)
+    
+current_date = get_current_or_previous_date(current_date)
+
 
 def load_shape_data_file():
-
+    """"""
     # download file
     URL = 'https://d37ci6vzurychx.cloudfront.net/misc/taxi_zones.zip'
     response = requests.get(URL)
@@ -49,21 +73,28 @@ def load_shape_data_file():
     # load and return shape file
     return gpd.read_file(DATA_DIR / 'taxi_zones/taxi_zones.shp').to_crs('epsg:4326')
 
-
 with st.spinner(text="Downloading shape file to plot taxi zones"):
     geo_df = load_shape_data_file()
     st.sidebar.write('✅ Shape file was downloaded ')
     progress_bar.progress(1/N_STEPS)
 
+@st.experimental_memo
+def _load_batch_of_features_from_store(current_date) -> pd.DataFrame:
+    """"""
+    return load_batch_of_features_from_store(current_date)
 
 with st.spinner(text="Fetching batch of inference data"):
-    features = load_batch_of_features_from_store(current_date)
+    features = _load_batch_of_features_from_store(current_date)
     st.sidebar.write('✅ Inference features fetched from the store')
     progress_bar.progress(2/N_STEPS)
     print(f'{features}')
 
+@st.experimental_memo
+def _load_model_from_registry():
+    return load_model_from_registry()
+
 with st.spinner(text="Loading ML model from the registry"):
-    model = load_model_from_registry()
+    model = _load_model_from_registry()
     st.sidebar.write('✅ ML model was load from the registry')
     progress_bar.progress(3/N_STEPS)
 
