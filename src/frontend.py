@@ -47,9 +47,9 @@ def get_current_or_previous_date(current_date) -> datetime:
     except:
         from datetime import timedelta
 
-        st.title(f'Taxi demand prediction 🚕')
-        st.header('The most recent data is not yet available')
-        st.header(f'{current_date} UTC')
+        # st.title(f'Taxi demand prediction 🚕')
+        st.subheader('⚠️ The most recent data is not yet available')
+        # st.header(f'{current_date} UTC')
         return current_date - timedelta(hours=1)
     
 current_date = get_current_or_previous_date(current_date)
