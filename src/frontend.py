@@ -55,15 +55,23 @@ with st.spinner(text="Downloading shape file to plot taxi zones"):
     st.sidebar.write('✅ Shape file was downloaded ')
     progress_bar.progress(1/N_STEPS)
 
+@st.experimental_memo
+def _load_batch_of_features_from_store(current_date) -> pd.DataFrame:
+    """"""
+    return load_batch_of_features_from_store(current_date)
 
 with st.spinner(text="Fetching batch of inference data"):
-    features = load_batch_of_features_from_store(current_date)
+    features = _load_batch_of_features_from_store(current_date)
     st.sidebar.write('✅ Inference features fetched from the store')
     progress_bar.progress(2/N_STEPS)
     print(f'{features}')
 
+@st.experimental_memo
+def _load_model_from_registry():
+    return load_model_from_registry()
+
 with st.spinner(text="Loading ML model from the registry"):
-    model = load_model_from_registry()
+    model = _load_model_from_registry()
     st.sidebar.write('✅ ML model was load from the registry')
     progress_bar.progress(3/N_STEPS)
 
