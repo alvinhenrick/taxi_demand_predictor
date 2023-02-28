@@ -15,7 +15,7 @@ env:
 
 jobs:
 
-  feature_pipeline:
+  inference_pipeline:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
