@@ -21,6 +21,7 @@ MODEL_VERSION = 2
 
 # added for monitoring purposes
 FEATURE_GROUP_MODEL_PREDICTIONS = 'model_predictions_feature_group'
+FEATURE_VIEW_MODEL_PREDICTIONS = 'model_predictions_feature_view'
 FEATURE_VIEW_MONITORING = 'predictions_vs_actuals_for_monitoring_feature_view'
 
 # number of historical values our model needs to generate predictions
