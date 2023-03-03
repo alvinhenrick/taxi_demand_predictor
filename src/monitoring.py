@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pandas as pd
 
@@ -51,16 +51,16 @@ def load_predictions_and_actual_values_from_store(
         print('Feature view already existed. Skip creation.')
 
     # feature view
-    monitoring_df = feature_store.get_feature_view(
+    monitoring_fv = feature_store.get_feature_view(
         name=config.FEATURE_VIEW_MONITORING,
         version=1
     )
 
     # fetch data form the feature view
     # fetch predicted and actual values for the last 30 days
-    monitoring_df = monitoring_df.get_batch_data(
-        start_time=from_date,
-        end_time=to_date
+    monitoring_df = monitoring_fv.get_batch_data(
+        start_time=from_date - timedelta(days=7),
+        end_time=to_date + timedelta(days=7)
     )
     monitoring_df = monitoring_df[monitoring_df.pickup_hour.between(from_date, to_date)]
 
