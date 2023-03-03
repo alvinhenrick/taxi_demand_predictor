@@ -6,4 +6,5 @@
 
 ## Wanna see it in action?
 
-[Click here](https://paulescu-taxi-demand-predictor-srcfrontend-7polyz.streamlit.app/)
+- [Dashboard with model predictions for the upcoming hour](https://taxi-demand-predictor.streamlit.app/)
+- [Monitoring dashboard to track model performance over time](https://taxi-demand-predictor-monitoring.streamlit.app/)
