@@ -25,10 +25,15 @@
     curl -sSL https://install.python-poetry.org | python3 -
     ```
 
-2. cd into the project folder and run `poetry install`
+2. cd into the project folder and run
+    ```
+    $ poetry install
+    ```
 
-3. Activate the virtual env that you just created with `poetry shell`
-
+3. Activate the virtual env that you just created with
+    ```
+    $ poetry shell
+    ```
 
 ## Wanna see it in action?
 
