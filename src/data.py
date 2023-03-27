@@ -130,7 +130,7 @@ def add_missing_slots(ts_data: pd.DataFrame) -> pd.DataFrame:
 
         output = pd.concat([output, ts_data_i])
     
-    # move the purchase_day from the index to a dataframe column
+    # move the pickup_hour from the index to a dataframe column
     output = output.reset_index().rename(columns={'index': 'pickup_hour'})
     
     return output
