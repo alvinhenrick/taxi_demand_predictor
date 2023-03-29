@@ -50,10 +50,10 @@ def load_raw_data(
     rides = pd.DataFrame()
     
     if months is None:
-        # download data only for the months specified by `months`
+        # download data for the entire year (all months)
         months = list(range(1, 13))
     elif isinstance(months, int):
-        # download data for the entire year (all months)
+        # download data only for the month specified by the int `month`
         months = [months]
 
     for month in months:
