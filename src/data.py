@@ -1,6 +1,7 @@
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Optional, List
+from pdb import set_trace as stop
 
 import numpy as np
 import pandas as pd
@@ -8,6 +9,7 @@ import requests
 from tqdm import tqdm
 
 from src.paths import RAW_DATA_DIR, TRANSFORMED_DATA_DIR
+
 
 def download_one_file_of_raw_data(year: int, month: int) -> Path:
     """
@@ -42,11 +44,58 @@ def validate_raw_data(
     return rides
 
 
+def fetch_ride_events_from_data_warehouse(
+    from_date: datetime,
+    to_date: datetime
+) -> pd.DataFrame:
+    """
+    This function is used to simulate production data by sampling historical data
+    from 52 weeks ago (i.e. 1 year)
+    """
+    from_date_ = from_date - timedelta(days=7*52)
+    to_date_ = to_date - timedelta(days=7*52)
+    print(f'Fetching ride events from {from_date} to {to_date}')
+
+    if (from_date_.year == to_date_.year) and (from_date_.month == to_date_.month):
+        # download 1 file of data only
+        rides = load_raw_data(year=from_date_.year, months=from_date_.month)
+        rides = rides[rides.pickup_datetime >= from_date_]
+        rides = rides[rides.pickup_datetime < to_date_]
+
+    else:
+        # download 2 files from website
+        rides = load_raw_data(year=from_date_.year, months=from_date_.month)
+        rides = rides[rides.pickup_datetime >= from_date_]
+        rides_2 = load_raw_data(year=to_date_.year, months=to_date_.month)
+        rides_2 = rides_2[rides_2.pickup_datetime < to_date_]
+        rides = pd.concat([rides, rides_2])
+
+    # shift the pickup_datetime back 1 year ahead, to simulate production data
+    # using its 7*52-days-ago value
+    rides['pickup_datetime'] += timedelta(days=7*52)
+
+    rides.sort_values(by=['pickup_location_id', 'pickup_datetime'], inplace=True)
+
+    return rides
+
+
 def load_raw_data(
     year: int,
     months: Optional[List[int]] = None
 ) -> pd.DataFrame:
-    """"""  
+    """
+    Loads raw data from local storage or downloads it from the NYC website, and
+    then loads it into a Pandas DataFrame
+
+    Args:
+        year: year of the data to download
+        months: months of the data to download. If `None`, download all months
+
+    Returns:
+        pd.DataFrame: DataFrame with the following columns:
+            - pickup_datetime: datetime of the pickup
+            - pickup_location_id: ID of the pickup location
+    """  
     rides = pd.DataFrame()
     
     if months is None:

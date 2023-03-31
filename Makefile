@@ -1,6 +1,10 @@
+.PHONE: requirements features
+
 # Generate a requirements.txt file from pyproject.toml if you work with Poetry
-requirements: upgrade-pip
+requirements:
+	python -m pip install --upgrade pip
 	pip-compile -o requirements.txt pyproject.toml --resolver=backtracking
 
-upgrade-pip:
-	python -m pip install --upgrade pip
+# run the feature pipeline
+features:
+	poetry run python scripts/feature_pipeline.py
