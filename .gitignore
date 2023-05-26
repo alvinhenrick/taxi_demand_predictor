@@ -4,3 +4,5 @@ data/
 *.parquet
 *.shp
 *.pkl
+*.idea
+*.venv
