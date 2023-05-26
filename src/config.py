@@ -6,7 +6,7 @@ from src.paths import PARENT_DIR
 # load key-value pairs from .env file located in the parent directory
 load_dotenv(PARENT_DIR / '.env')
 
-HOPSWORKS_PROJECT_NAME = 'taxi_demand'
+HOPSWORKS_PROJECT_NAME = 'taxi_demand_alvin'
 try:
     HOPSWORKS_API_KEY = os.environ['HOPSWORKS_API_KEY']
 except:
