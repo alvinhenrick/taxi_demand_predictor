@@ -1,4 +1,4 @@
-import zipfile 
+import zipfile
 from datetime import datetime, timedelta
 
 import requests
@@ -57,7 +57,7 @@ def load_shape_data_file() -> gpd.geodataframe.GeoDataFrame:
     return gpd.read_file(DATA_DIR / 'taxi_zones/taxi_zones.shp').to_crs('epsg:4326')
 
 
-@st.experimental_memo
+@st.cache_data
 def _load_batch_of_features_from_store(current_date: datetime) -> pd.DataFrame:
     """Wrapped version of src.inference.load_batch_of_features_from_store, so
     we can add Streamlit caching
@@ -76,11 +76,12 @@ def _load_batch_of_features_from_store(current_date: datetime) -> pd.DataFrame:
     """
     return load_batch_of_features_from_store(current_date)
 
-@st.experimental_memo
+
+@st.cache_data
 def _load_predictions_from_store(
-    from_pickup_hour: datetime,
-    to_pickup_hour: datetime
-    ) -> pd.DataFrame:
+        from_pickup_hour: datetime,
+        to_pickup_hour: datetime
+) -> pd.DataFrame:
     """
     Wrapped version of src.inference.load_predictions_from_store, so we
     can add Streamlit caching
@@ -97,18 +98,19 @@ def _load_predictions_from_store(
     """
     return load_predictions_from_store(from_pickup_hour, to_pickup_hour)
 
+
 with st.spinner(text="Downloading shape file to plot taxi zones"):
     geo_df = load_shape_data_file()
     st.sidebar.write('✅ Shape file was downloaded ')
-    progress_bar.progress(1/N_STEPS)
+    progress_bar.progress(1 / N_STEPS)
 
 with st.spinner(text="Fetching model predictions from the store"):
     predictions_df = _load_predictions_from_store(
         from_pickup_hour=current_date - timedelta(hours=1),
         to_pickup_hour=current_date
-        )
+    )
     st.sidebar.write('✅ Model predictions arrived')
-    progress_bar.progress(2/N_STEPS)
+    progress_bar.progress(2 / N_STEPS)
 
 # Here we are checking the predictions for the current hour have already been computed
 # and are available
@@ -129,9 +131,7 @@ else:
     raise Exception('Features are not available for the last 2 hours. Is your feature \
                     pipeline up and running? 🤔')
 
-
 with st.spinner(text="Preparing data to plot"):
-
     def pseudocolor(val, minval, maxval, startcolor, stopcolor):
         """
         Convert value in the range minval...maxval to a color in the range
@@ -140,22 +140,22 @@ with st.spinner(text="Preparing data to plot"):
 
         Credits to https://stackoverflow.com/a/10907855
         """
-        f = float(val-minval) / (maxval-minval)
-        return tuple(f*(b-a)+a for (a, b) in zip(startcolor, stopcolor))
-        
+        f = float(val - minval) / (maxval - minval)
+        return tuple(f * (b - a) + a for (a, b) in zip(startcolor, stopcolor))
+
+
     df = pd.merge(geo_df, predictions_df,
                   right_on='pickup_location_id',
                   left_on='LocationID',
                   how='inner')
-    
+
     BLACK, GREEN = (0, 0, 0), (0, 255, 0)
     df['color_scaling'] = df['predicted_demand']
     max_pred, min_pred = df['color_scaling'].max(), df['color_scaling'].min()
     df['fill_color'] = df['color_scaling'].apply(lambda x: pseudocolor(x, min_pred, max_pred, BLACK, GREEN))
-    progress_bar.progress(3/N_STEPS)
+    progress_bar.progress(3 / N_STEPS)
 
 with st.spinner(text="Generating NYC Map"):
-
     INITIAL_VIEW_STATE = pdk.ViewState(
         latitude=40.7831,
         longitude=-73.9712,
@@ -189,17 +189,14 @@ with st.spinner(text="Generating NYC Map"):
     )
 
     st.pydeck_chart(r)
-    progress_bar.progress(4/N_STEPS)
-
+    progress_bar.progress(4 / N_STEPS)
 
 with st.spinner(text="Fetching batch of features used in the last run"):
     features_df = _load_batch_of_features_from_store(current_date)
     st.sidebar.write('✅ Inference features fetched from the store')
-    progress_bar.progress(5/N_STEPS)
-
+    progress_bar.progress(5 / N_STEPS)
 
 with st.spinner(text="Plotting time-series data"):
-   
     row_indices = np.argsort(predictions_df['predicted_demand'].values)[::-1]
     n_to_plot = 10
 
@@ -213,4 +210,4 @@ with st.spinner(text="Plotting time-series data"):
         )
         st.plotly_chart(fig, theme="streamlit", use_container_width=True, width=1000)
 
-    progress_bar.progress(6/N_STEPS)
+    progress_bar.progress(6 / N_STEPS)
