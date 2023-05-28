@@ -1,10 +1,9 @@
 from datetime import datetime, timedelta
 
-import numpy as np
 import pandas as pd
+import plotly.express as px
 import streamlit as st
 from sklearn.metrics import mean_absolute_error
-import plotly.express as px
 
 from src.monitoring import load_predictions_and_actual_values_from_store
 
@@ -19,7 +18,7 @@ progress_bar = st.sidebar.progress(0)
 N_STEPS = 3
 
 
-@st.experimental_memo
+@st.cache_data
 def _load_predictions_and_actuals_from_store(
     from_date: datetime,
     to_date: datetime
